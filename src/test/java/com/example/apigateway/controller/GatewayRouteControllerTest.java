@@ -74,8 +74,8 @@ class GatewayRouteControllerTest {
     }
 
     @Test
-    @DisplayName("POST /routes: should return 500 when routeId already exists")
-    void createRoute_duplicateRouteId_returns500() {
+    @DisplayName("POST /routes: should return 409 when routeId already exists")
+    void createRoute_duplicateRouteId_returns409() {
         when(routeService.createRoute(any(GatewayRouteRequest.class)))
                 .thenReturn(Mono.error(new IllegalArgumentException("Route already exists")));
 
@@ -84,7 +84,7 @@ class GatewayRouteControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(validRequest)
                 .exchange()
-                .expectStatus().is5xxServerError();
+                .expectStatus().isEqualTo(409);
     }
 
     // -------------------------------------------------------------------------
@@ -155,15 +155,15 @@ class GatewayRouteControllerTest {
     }
 
     @Test
-    @DisplayName("GET /routes/{id}: should return 500 when route not found")
-    void getRouteById_notFound_returns500() {
+    @DisplayName("GET /routes/{id}: should return 404 when route not found")
+    void getRouteById_notFound_returns404() {
         when(routeService.getRouteById(99L))
                 .thenReturn(Mono.error(new NoSuchElementException("Route not found")));
 
         webTestClient.get()
                 .uri("/v1/apigateway/routes/99")
                 .exchange()
-                .expectStatus().is5xxServerError();
+                .expectStatus().isNotFound();
     }
 
     // -------------------------------------------------------------------------
@@ -190,8 +190,8 @@ class GatewayRouteControllerTest {
     }
 
     @Test
-    @DisplayName("PUT /routes/{id}: should return 500 when route not found")
-    void updateRoute_notFound_returns500() {
+    @DisplayName("PUT /routes/{id}: should return 404 when route not found")
+    void updateRoute_notFound_returns404() {
         when(routeService.updateRoute(eq(99L), any(GatewayRouteRequest.class)))
                 .thenReturn(Mono.error(new NoSuchElementException("Not found")));
 
@@ -200,7 +200,7 @@ class GatewayRouteControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(validRequest)
                 .exchange()
-                .expectStatus().is5xxServerError();
+                .expectStatus().isNotFound();
     }
 
     // -------------------------------------------------------------------------
@@ -219,14 +219,14 @@ class GatewayRouteControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /routes/{id}: should return 500 when route not found")
-    void deleteRoute_notFound_returns500() {
+    @DisplayName("DELETE /routes/{id}: should return 404 when route not found")
+    void deleteRoute_notFound_returns404() {
         when(routeService.deleteRoute(99L))
                 .thenReturn(Mono.error(new NoSuchElementException("Not found")));
 
         webTestClient.delete()
                 .uri("/v1/apigateway/routes/99")
                 .exchange()
-                .expectStatus().is5xxServerError();
+                .expectStatus().isNotFound();
     }
 }
